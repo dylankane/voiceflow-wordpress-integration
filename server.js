@@ -2,7 +2,6 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const app = express();
@@ -14,22 +13,10 @@ app.use(cors());
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Middleware to handle user session (generate or retrieve user ID)
-app.use((req, res, next) => {
-  if (!req.cookies || !req.cookies.userID) {
-    const userID = uuidv4();
-    res.cookie('userID', userID, { httpOnly: true });
-    req.userID = userID;
-  } else {
-    req.userID = req.cookies.userID;
-  }
-  next();
-});
-
 // Endpoint to handle chat messages
 app.post('/api/chat', async (req, res) => {
   const { message, url, metadata } = req.body;
-  const userID = req.userID;
+  const userID = req.body.userID || 'test-user-id'; // Using a static userID for testing
 
   try {
     const response = await axios.post(`https://general-runtime.voiceflow.com/state/${process.env.VOICEFLOW_VERSION_ID}/user/${userID}/interact`, {
