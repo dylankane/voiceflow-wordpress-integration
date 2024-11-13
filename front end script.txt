@@ -1,4 +1,10 @@
+To be added to the footer of the website where you want to embed. With a placeholder div where ever you want to display the chat bot
 
+<div id="chat-placeholder"></div>
+
+In this script you can edit the front end appearance too. 
+
+<script>
 (function() {
   // Collect metadata (collecting URL and language)
   const metadata = {
@@ -334,4 +340,4 @@
     });
   }
 })();
-
+</script>

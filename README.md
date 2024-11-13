@@ -1,5 +1,5 @@
-# VF embedded bot template README
-## A Template for setting up a voiceflow integration app for a live embedded bot into a webpage
+# Voiceflow - Wordpress integration
+## AI LABS original (non template)
 ---
 ### Overview
 An Application to intergrate a custom UI to a wordpress site controlling a voiceflow bot. This can have the ability to capture the users browsers language as well as capturing the exact url the user is on within the website, controlling how the converstion is handled on the voiceflow end, allowing for very custom converstion flow. 
