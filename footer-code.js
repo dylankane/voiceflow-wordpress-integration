@@ -1,0 +1,337 @@
+
+(function() {
+  // Collect metadata (collecting URL and language)
+  const metadata = {
+    type: 'pageLoad',
+    url: window.location.href,
+    language: navigator.language,
+  };
+
+  // Generate or retrieve User ID for the session using cookies
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+  }
+
+  // Generate or retrieve User ID
+  let userID = getCookie('userID');
+  if (!userID) {
+    userID = 'user_' + Date.now(); // Simple unique ID using timestamp
+    setCookie('userID', userID, 1); // Cookie expires in 1 day
+  }
+
+  // Function to create the Chat UI
+  function createChatUI() {
+    const chatPlaceholder = document.getElementById('chat-placeholder');
+    if (!chatPlaceholder) {
+      console.log('Chat placeholder not found.');
+      return;
+    }
+
+    // Create chat container
+    const chatContainer = document.createElement('div');
+    chatContainer.id = 'chat-container';
+
+    // Create chat header, chat box, input area, and buttons
+    chatContainer.innerHTML = `
+      <div id="chat-header">✨Learn more with our AI Assistant✨</div>
+      <div id="chat-box"></div>
+      <div id="chat-buttons">
+        <button class="preset-button" data-message="get in touch">Get in touch</button>
+        <button class="preset-button" data-message="what we do">What we do</button>
+        <button class="preset-button" data-message="ai ideas">AI Ideas</button>
+      </div>
+      <div id="chat-input">
+        <input type="text" id="message-input" placeholder="Type your message here...">
+        <button id="send-button">➤</button>
+      </div>
+    `;
+    chatPlaceholder.appendChild(chatContainer);
+
+    // Inject CSS styles for the chat UI
+    const style = document.createElement('style');
+    style.innerHTML = `
+      /* Chat container styling */
+      #chat-container {
+        width: 85%;
+        max-height: 500px;
+        background-color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        margin: 20px auto;
+      }
+      /* Chat header styling */
+      #chat-header {
+        background-color: #ffffff;
+        color: #54595F;
+        padding: 10px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+      /* Chat box styling */
+      #chat-box {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        background-color: #ffffff;
+      }
+      /* Message styling */
+      .message {
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 20px;
+        display: block;
+        width: fit-content;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+      /* User message styling */
+      .user-message {
+        background-color: #D1C026;
+        color: #54595F;
+        align-self: flex-end;
+        text-align: right;
+        margin-left: auto;
+      }
+      /* Bot message styling */
+      .bot-message {
+        background-color: #e0e0e0;
+        color: #333333;
+        align-self: flex-start;
+        text-align: left;
+        margin-right: auto;
+      }
+      /* Chat input container styling */
+      #chat-input {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #54595F;
+        align-items: center;
+      }
+      /* Message input styling */
+      #message-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #54595F;
+        border-radius: 25px;
+        outline: none;
+        height: 40px;
+      }
+      /* Send button styling */
+      #send-button {
+        background-color: #D1C026;
+        color: #ffffff;
+        border: none;
+        padding: 10px 25px;
+        margin-left: 10px;
+        border-radius: 50px;
+        cursor: pointer;
+      }
+      #send-button:hover {
+        background-color: #ffffff;
+        color: #D1C026;
+        border: 1px solid #54595F;
+      }
+      /* Preset buttons styling */
+      #chat-buttons {
+        display: flex;
+        justify-content: space-around;
+        padding: 10px;
+      }
+      .preset-button {
+        background-color: #ffffff;
+        color: #54595F;
+        border: 1px solid #54595F;
+        padding: 5px 10px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 0.8em;
+      }
+      .preset-button:hover {
+        background-color: #d1c026;
+        color: #ffffff;
+        border: 1px solid #54595F;
+      }
+      /* Loading dots animation */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
+      .loading-dot {
+        width: 4px;
+        height: 4px;
+        margin: 0 3px;
+        background-color: #54595F;
+        border-radius: 50%;
+        animation: loadingDot 1s infinite;
+      }
+      .loading-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .loading-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes loadingDot {
+        0%, 20%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Chat elements
+    const chatBox = document.getElementById('chat-box');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const presetButtons = document.querySelectorAll('.preset-button');
+
+    // Handle sending user messages
+    sendButton.addEventListener('click', () => {
+      sendMessage();
+    });
+
+    messageInput.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const message = button.getAttribute('data-message');
+        sendMessage(message);
+      });
+    });
+
+    // Send initial request to the backend on page load
+    window.addEventListener('load', () => {
+      fetch('https://embedded-assistant-d67a1ffd976e.herokuapp.com/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: '',
+          userID: userID,
+          metadata,
+        }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Voiceflow Response:', data); // Log response for debugging
+        if (data && Array.isArray(data)) {
+          data.forEach(item => {
+            if (item.payload && item.payload.message) {
+              const botMessage = item.payload.message;
+              appendMessage(botMessage, 'bot');
+            }
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error sending initial message to backend:', error);
+      });
+    });
+  }
+
+  createChatUI();
+
+  // Append message to chat UI
+  function appendMessage(message, sender) {
+    const chatBox = document.getElementById('chat-box');
+    if (!chatBox) return;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+    messageDiv.textContent = message;
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendMessage(message) {
+    const messageInput = document.getElementById('message-input');
+    const userMessage = message || messageInput.value.trim();
+    if (userMessage === '') return;
+
+    appendMessage(userMessage, 'user');
+    messageInput.value = '';
+
+    // Add loading animation
+    const loadingDiv = document.createElement('div');
+	const chatBox = document.getElementById('chat-box');
+    loadingDiv.classList.add('message', 'bot-message', 'loading');
+    loadingDiv.innerHTML = `
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    `;
+    chatBox.appendChild(loadingDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Send user message to backend
+    fetch('https://embedded-assistant-d67a1ffd976e.herokuapp.com/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        userID: userID,
+        metadata,
+      }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Voiceflow Response:', data); // Log response for debugging
+      // Remove loading animation
+      chatBox.removeChild(loadingDiv);
+
+      if (data && Array.isArray(data)) {
+        data.forEach(item => {
+          if (item.payload && item.payload.message) {
+            const botMessage = item.payload.message;
+            appendMessage(botMessage, 'bot');
+          }
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error sending user message to backend:', error);
+      // Remove loading animation on error
+      chatBox.removeChild(loadingDiv);
+    });
+  }
+})();
+

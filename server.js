@@ -12,7 +12,7 @@ app.use(cors());
 
 // Add headers to handle CORS issues
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://www.mkgdigital.es');
+  res.header('Access-Control-Allow-Origin', 'ADD YOUR WEBSITE URL WHERE THE BOT WILL BE EMBEDDED HERE');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
