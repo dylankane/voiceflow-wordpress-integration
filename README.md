@@ -10,7 +10,7 @@ An Application to intergrate a custom UI to a wordpress site controlling a voice
 ### Technical Overview
 This template helps you set up an integration between a Voiceflow chatbot and a custom user interface (UI) embedded into a webpage, such as a WordPress site. The server application serves as the backend that facilitates communication between a chatbot created in Voiceflow and users interacting with it on your website.
 
-### Main Function of the `server.js` File
+#### Main Function of the `server.js` File
 The `server.js` file defines a server application that acts as the backend for a chatbot integrated with Voiceflow. Below is an overview of its key features:
 
 #### Dependencies and Configurations
@@ -19,11 +19,11 @@ The `server.js` file defines a server application that acts as the backend for a
 - **CORS**: Used to handle Cross-Origin Resource Sharing (CORS) issues, allowing the chatbot to function seamlessly across different origins.
 - **dotenv**: Loads environment variables from a `.env` file to keep sensitive data secure.
 
-### Middleware Setup
+#### Middleware Setup
 - **CORS Handling**: The server uses `cors()` to allow requests from any origin. Additional headers are added to allow specific methods and headers from the site where the bot is embedded.
 - **JSON Parsing**: `express.json()` middleware is used to parse incoming JSON request bodies.
 
-### Chat Handling Endpoint (`/api/chat`)
+#### Chat Handling Endpoint (`/api/chat`)
 - **Handling User Messages**: Handles `POST` requests to manage communication between the chatbot UI and Voiceflow.
 - **Session State Check**:
   - Checks if a session state exists for the given `userID` by making a `GET` request to Voiceflow's state endpoint.
@@ -32,17 +32,17 @@ The `server.js` file defines a server application that acts as the backend for a
   - Constructs a payload containing either the user message or metadata and sends it to Voiceflow via a `POST` request.
 - **Error Handling**: Logs any errors that occur during communication with Voiceflow and responds with an error message to the client if needed.
 
-### Server Listening
+#### Server Listening
 The server listens on the port defined in the `.env` file or defaults to port `5000` if no environment variable is specified.
 
-### Key Features
+#### Key Features
 - **Session Initialization**: Automatically checks if a session exists and starts a new session if necessary.
 - **CORS Configuration**: Ensures proper handling of requests originating from your website.
 - **Dynamic Metadata Handling**: Sends metadata such as page URL and language on page load, enabling the bot to adapt responses based on the user's context.
 
 This backend setup ensures that the bot can receive user messages, initiate sessions when needed, and relay data between Voiceflow and users, while addressing browser compatibility via CORS settings.
 
-## Website Integration (WordPress-Based)
+#### Website Integration (WordPress-Based)
 1. **Footer Script Setup**
    - Add the code from `footer-code.js` to the footer of your WordPress site using a code snippets plugin or similar tool.
    - Ensure the script is wrapped in `<script>` tags.
@@ -54,7 +54,7 @@ This backend setup ensures that the bot can receive user messages, initiate sess
      ```
    - Insert this element on each page where you want the chatbot to be embedded.
 
-## Setup Instructions for Creating a New Version of the Voiceflow Chatbot Integration Template
+### Setup Instructions for Creating a New Version of the Voiceflow Chatbot Integration Template
 
 1. **Clone the Template Repository**
    - Clone this template repository to create a new project using HTTPS, SSH, or GitHub CLI.
